@@ -1,0 +1,46 @@
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+- group: group
+- name: AZ_RG_NAME
+  value: rg-ContosoUniversityDemo
+- name: AZ_LOCATION
+  value: eastus
+- name: AZ_SERVICE_PLAN
+  value: $(AZ_APP_PREFIX)-asp
+- name: AZ_APP_NAME
+  value: $(AZ_APP_PREFIX)-app
+- name: AZ_API_NAME
+  value: $(AZ_APP_PREFIX)-api
+- name: AZ_INSIGHT_NAME
+  value: $(AZ_APP_PREFIX)-appi
+- name: AZ_ANALYTICS_NAME
+  value: $(AZ_APP_PREFIX)-la
+- name: AZ_SQL_SERVER_NAME
+  value: $(AZ_APP_PREFIX)-sql
+- name: AZ_SQL_DATABASE_NAME
+  value: $(AZ_APP_PREFIX)-Db
+
+
+steps:
+- checkout: self
+
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: sp-luketaylor-dev
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      az group create \
+        --name $(AZ_RG_NAME) \
+        --location $(AZ_LOCATION)
+      az deployment group create \
+        --resource-group $(AZ_RG_NAME) \
+        --template-file infra/main.bicep \
+        --parameters servicePlan=$(AZ_SERVICE_PLAN) appName=$(AZ_APP_NAME) apiName=$(AZ_API_NAME) insightName=$(AZ_INSIGHT_NAME) analyticsName=$(AZ_ANALYTICS_NAME) serverName=$(AZ_SQL_SERVER_NAME) sqlAdministratorLogin=$(AZ_SQL_SERVER_LOGIN) sqlAdministratorLoginPassword=$(AZ_SQL_SERVER_PASSWORD) databaseName=$(AZ_SQL_DATABASE_NAME) \
+        --mode Incremental \
+        --name 'gh-actions'

@@ -1,0 +1,126 @@
+name: ContosoUniversity
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - "infra/**"
+      - "**/ContosoUniversity - Infra.yml"
+      - "**/README.md"
+
+variables:
+- group: group
+
+- name: CONFIGURATION 
+  value: release
+
+- name: AZ_APP_NAME
+  value: $(AZ_APP_PREFIX)-app
+
+- name: AZ_API_NAME 
+  value: $(AZ_APP_PREFIX)-api
+
+- name: ConnectionStrings.ContosoUniversityAPIContext
+  value: Server=tcp:$(AZ_APP_PREFIX)-sql.database.windows.net,1433;Initial Catalog=$(AZ_APP_PREFIX)-Db;Persist Security Info=False;User ID=$(AZ_SQL_SERVER_LOGIN);Password=$(AZ_SQL_SERVER_PASSWORD);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+- name: ApplicationInsights.ConnectionString
+  value: InstrumentationKey=b650eed9-83ab-4d29-8010-15e36378f06d;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/
+
+- name: Api.Address
+  value: "https://$(AZ_API_NAME).azurewebsites.net/"
+
+jobs:
+  - job: Build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - checkout: self
+      - task: UseDotNet@2
+        inputs:
+          packageType: "sdk"
+          version: "6.0.x"
+      
+      - task: DotNetCoreCLI@2
+        displayName: "Restore"
+        inputs:
+          command: "restore"
+          projects: "src/ContosoUniversity.sln"
+      
+      - task: DotNetCoreCLI@2
+        displayName: "Build"
+        inputs:
+          command: "build"
+          projects: "src/ContosoUniversity.sln"
+          arguments: "--configuration $(CONFIGURATION) --no-restore"
+      
+      # - task: DotNetCoreCLI@6
+      #   displayName: "Test"
+      #   inputs:
+      #     command: "test"
+      #     projects: "src/ContosoUniversity.Test/ContosoUniversity.Test.csproj"
+      #     arguments: "--verbosity normal --logger trx --results-directory TestResults"
+      
+      - task: DotNetCoreCLI@2
+        displayName: "Publish APP"
+        inputs:
+          command: "publish"
+          arguments: "--configuration $(CONFIGURATION) --output PublishApp"
+          projects: "src/ContosoUniversity.WebApplication/ContosoUniversity.WebApplication.csproj"
+      
+      - task: DotNetCoreCLI@2
+        displayName: "Publish API"
+        inputs:
+          command: "publish"
+          arguments: "--configuration $(CONFIGURATION) --output PublishApi"
+          projects: "src/ContosoUniversity.API/ContosoUniversity.API.csproj"
+      
+      - task: PublishPipelineArtifact@1
+        displayName: "Upload APP results"
+        inputs:
+          artifactName: "app"
+          path: "PublishApp"
+      
+      - task: PublishPipelineArtifact@1
+        displayName: "Upload API results"
+        inputs:
+          artifactName: "api"
+          path: "PublishApi"
+
+  - job: Release
+    dependsOn: build
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: "Dowload Pipeline App Artifact" 
+        inputs:
+          artifact: "app"
+          path: "$(System.ArtifactsDirectory)/app-artifact"
+
+      - task: DownloadPipelineArtifact@2
+        displayName: "Dowload Pipeline API Artifact"
+        inputs:
+          artifact: "api"
+          path: "$(System.ArtifactsDirectory)/api-artifact"
+
+      - task: AzureRmWebAppDeployment@4
+        displayName: "Web App Deployment"
+        inputs:
+          ConnectionType: "AzureRM"
+          azureSubscription: sp-luketaylor-dev
+          appType: "webApp"
+          WebAppName: $(AZ_API_NAME)
+          packageForLinux: "$(System.ArtifactsDirectory)/api-artifact/ContosoUniversity.API.zip"
+          JSONFiles: '**/appsettings.json'
+
+      - task: AzureRmWebAppDeployment@4
+        displayName: "Web API Deployment"
+        inputs:
+          ConnectionType: "AzureRM"
+          azureSubscription: sp-luketaylor-dev
+          appType: "webApp"
+          WebAppName: $(AZ_APP_NAME)
+          packageForLinux: "$(System.ArtifactsDirectory)/app-artifact/ContosoUniversity.WebApplication.zip"
+          JSONFiles: '**/appsettings.json'
+
