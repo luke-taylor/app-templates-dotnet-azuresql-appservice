@@ -1,0 +1,41 @@
+variables:
+## Infrastructure Settings 
+- group: group
+- name: unique_prefix
+  value: con-uni-22818
+- name: resource_group_name
+  value: rg-ContosoUniversityDemo
+- name: location
+  value: eastus
+- name: app_service_plan_name
+  value: $(unique_prefix)-asp
+- name: app_name
+  value: $(unique_prefix)-app
+- name: api_name
+  value: $(unique_prefix)-api
+
+# Insights
+- name: app_insights_name
+  value: $(unique_prefix)-appi
+- name: log_analytics_name
+  value: $(unique_prefix)-la
+
+# SQL
+- name: sql_server_name
+  value: $(unique_prefix)-sql
+- name: sql_db_name
+  value: $(unique_prefix)-Db
+- name: sql_login
+  value: sqluser
+- name: sql_password
+  value: $(AZ_SQL_SERVER_PASSWORD)  
+
+# App Settings 
+- name: ConnectionStrings.ContosoUniversityAPIContext
+  value: Server=tcp:$(sql_server_name).database.windows.net,1433;Initial Catalog=$(sql_db_name);Persist Security Info=False;User ID=$(sql_login);Password=$(sql_password);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
+- name: ApplicationInsights.ConnectionString
+  value: InstrumentationKey=b650eed9-83ab-4d29-8010-15e36378f06d;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/
+- name: Api.Address
+  value: "https://$(api_name).azurewebsites.net/"
+- name: CONFIGURATION 
+  value: release

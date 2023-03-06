@@ -1,34 +1,8 @@
-name: ContosoUniversity
 
-trigger:
-  branches:
-    include:
-      - main
-  paths:
-    exclude:
-      - "infra/**"
-      - "**/ContosoUniversity - Infra.yml"
-      - "**/README.md"
+trigger: none
 
 variables:
-- group: group
-
-- name: CONFIGURATION 
-  value: release
-
-- name: AZ_APP_NAME
-  value: $(AZ_APP_PREFIX)-app
-
-- name: AZ_API_NAME 
-  value: $(AZ_APP_PREFIX)-api
-
-- name: ConnectionStrings.ContosoUniversityAPIContext
-  value: Server=tcp:$(AZ_APP_PREFIX)-sql.database.windows.net,1433;Initial Catalog=$(AZ_APP_PREFIX)-Db;Persist Security Info=False;User ID=$(AZ_SQL_SERVER_LOGIN);Password=$(AZ_SQL_SERVER_PASSWORD);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-- name: ApplicationInsights.ConnectionString
-  value: InstrumentationKey=b650eed9-83ab-4d29-8010-15e36378f06d;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/
-
-- name: Api.Address
-  value: "https://$(AZ_API_NAME).azurewebsites.net/"
+- template: ./config.yml
 
 jobs:
   - job: Build
@@ -110,7 +84,7 @@ jobs:
           ConnectionType: "AzureRM"
           azureSubscription: sp-luketaylor-dev
           appType: "webApp"
-          WebAppName: $(AZ_API_NAME)
+          WebAppName: $(api_name)
           packageForLinux: "$(System.ArtifactsDirectory)/api-artifact/ContosoUniversity.API.zip"
           JSONFiles: '**/appsettings.json'
 
@@ -120,7 +94,7 @@ jobs:
           ConnectionType: "AzureRM"
           azureSubscription: sp-luketaylor-dev
           appType: "webApp"
-          WebAppName: $(AZ_APP_NAME)
+          WebAppName: $(app_name)
           packageForLinux: "$(System.ArtifactsDirectory)/app-artifact/ContosoUniversity.WebApplication.zip"
           JSONFiles: '**/appsettings.json'
 

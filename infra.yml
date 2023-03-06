@@ -1,29 +1,10 @@
-trigger:
-- main
+trigger: none 
 
 pool:
   vmImage: ubuntu-latest
 
 variables:
-- group: group
-- name: AZ_RG_NAME
-  value: rg-ContosoUniversityDemo
-- name: AZ_LOCATION
-  value: eastus
-- name: AZ_SERVICE_PLAN
-  value: $(AZ_APP_PREFIX)-asp
-- name: AZ_APP_NAME
-  value: $(AZ_APP_PREFIX)-app
-- name: AZ_API_NAME
-  value: $(AZ_APP_PREFIX)-api
-- name: AZ_INSIGHT_NAME
-  value: $(AZ_APP_PREFIX)-appi
-- name: AZ_ANALYTICS_NAME
-  value: $(AZ_APP_PREFIX)-la
-- name: AZ_SQL_SERVER_NAME
-  value: $(AZ_APP_PREFIX)-sql
-- name: AZ_SQL_DATABASE_NAME
-  value: $(AZ_APP_PREFIX)-Db
+- template: ./config.yml
 
 
 steps:
@@ -36,11 +17,11 @@ steps:
     scriptLocation: 'inlineScript'
     inlineScript: |
       az group create \
-        --name $(AZ_RG_NAME) \
-        --location $(AZ_LOCATION)
+        --name $(resource_group_name) \
+        --location $(location)
       az deployment group create \
-        --resource-group $(AZ_RG_NAME) \
+        --resource-group $(resource_group_name) \
         --template-file infra/main.bicep \
-        --parameters servicePlan=$(AZ_SERVICE_PLAN) appName=$(AZ_APP_NAME) apiName=$(AZ_API_NAME) insightName=$(AZ_INSIGHT_NAME) analyticsName=$(AZ_ANALYTICS_NAME) serverName=$(AZ_SQL_SERVER_NAME) sqlAdministratorLogin=$(AZ_SQL_SERVER_LOGIN) sqlAdministratorLoginPassword=$(AZ_SQL_SERVER_PASSWORD) databaseName=$(AZ_SQL_DATABASE_NAME) \
+        --parameters servicePlan=$(app_service_plan_name) appName=$(app_name) apiName=$(api_name) insightName=$(app_insights_name) analyticsName=$(log_analytics_name) serverName=$(sql_server_name) sqlAdministratorLogin=$(sql_login) sqlAdministratorLoginPassword=$(sql_password) databaseName=$(sql_db_name) \
         --mode Incremental \
-        --name 'gh-actions'
+        --name 'app-baseline'
