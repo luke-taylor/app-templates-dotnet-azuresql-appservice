@@ -125,6 +125,7 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2021-03-01' = {
   parent: appService
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
   }
   dependsOn: [
     appServiceSiteExtension
@@ -136,6 +137,7 @@ resource apiServiceAppSettings 'Microsoft.Web/sites/config@2021-03-01' = {
   parent: apiService
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.properties.ConnectionString
   }
   dependsOn: [
     apiServiceSiteExtension
