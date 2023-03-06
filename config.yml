@@ -1,8 +1,12 @@
 variables:
+## Authentication
+- name: service_connection
+  value: sp-luketaylor-dev
+
 ## Infrastructure Settings 
-- group: group
+- group: secret_variables #Variable Group in Azure DevOps containig SQL Password 
 - name: unique_prefix
-  value: con-uni-22818
+  value: con-uni-22818 #Make this value unique 
 - name: resource_group_name
   value: rg-ContosoUniversityDemo
 - name: location
@@ -30,11 +34,9 @@ variables:
 - name: sql_password
   value: $(AZ_SQL_SERVER_PASSWORD)  
 
-# App Settings 
+## App Settings 
 - name: ConnectionStrings.ContosoUniversityAPIContext
   value: Server=tcp:$(sql_server_name).database.windows.net,1433;Initial Catalog=$(sql_db_name);Persist Security Info=False;User ID=$(sql_login);Password=$(sql_password);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
-- name: ApplicationInsights.ConnectionString
-  value: InstrumentationKey=b650eed9-83ab-4d29-8010-15e36378f06d;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/
 - name: Api.Address
   value: "https://$(api_name).azurewebsites.net/"
 - name: CONFIGURATION 

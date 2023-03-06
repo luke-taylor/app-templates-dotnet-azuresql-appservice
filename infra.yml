@@ -12,7 +12,7 @@ steps:
 
 - task: AzureCLI@2
   inputs:
-    azureSubscription: sp-luketaylor-dev
+    azureSubscription: $(service_connection)
     scriptType: 'bash'
     scriptLocation: 'inlineScript'
     inlineScript: |

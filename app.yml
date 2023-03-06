@@ -82,7 +82,7 @@ jobs:
         displayName: "Web App Deployment"
         inputs:
           ConnectionType: "AzureRM"
-          azureSubscription: sp-luketaylor-dev
+          azureSubscription: $(service_connection)
           appType: "webApp"
           WebAppName: $(api_name)
           packageForLinux: "$(System.ArtifactsDirectory)/api-artifact/ContosoUniversity.API.zip"
@@ -92,7 +92,7 @@ jobs:
         displayName: "Web API Deployment"
         inputs:
           ConnectionType: "AzureRM"
-          azureSubscription: sp-luketaylor-dev
+          azureSubscription: $(service_connection)
           appType: "webApp"
           WebAppName: $(app_name)
           packageForLinux: "$(System.ArtifactsDirectory)/app-artifact/ContosoUniversity.WebApplication.zip"
