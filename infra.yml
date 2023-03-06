@@ -6,22 +6,27 @@ pool:
 variables:
 - template: ./config.yml
 
+stages: 
+  - stage:
+    displayName: Baseline Scenario 
+    jobs: 
+      - job: 
+        displayName: Deploy Infrastructure 
+        steps:
+        - checkout: self
 
-steps:
-- checkout: self
-
-- task: AzureCLI@2
-  inputs:
-    azureSubscription: $(service_connection)
-    scriptType: 'bash'
-    scriptLocation: 'inlineScript'
-    inlineScript: |
-      az group create \
-        --name $(resource_group_name) \
-        --location $(location)
-      az deployment group create \
-        --resource-group $(resource_group_name) \
-        --template-file infra/baseline/main.bicep \
-        --parameters servicePlan=$(app_service_plan_name) appName=$(app_name) apiName=$(api_name) insightName=$(app_insights_name) analyticsName=$(log_analytics_name) serverName=$(sql_server_name) sqlAdministratorLogin=$(sql_login) sqlAdministratorLoginPassword=$(sql_password) databaseName=$(sql_db_name) \
-        --mode Incremental \
-        --name 'app-baseline'
+        - task: AzureCLI@2
+          inputs:
+            azureSubscription: $(service_connection)
+            scriptType: 'bash'
+            scriptLocation: 'inlineScript'
+            inlineScript: |
+              az group create \
+                --name $(resource_group_name) \
+                --location $(location)
+              az deployment group create \
+                --resource-group $(resource_group_name) \
+                --template-file infra/baseline/main.bicep \
+                --parameters servicePlan=$(app_service_plan_name) appName=$(app_name) apiName=$(api_name) insightName=$(app_insights_name) analyticsName=$(log_analytics_name) serverName=$(sql_server_name) sqlAdministratorLogin=$(sql_login) sqlAdministratorLoginPassword=$(sql_password) databaseName=$(sql_db_name) \
+                --mode Incremental \
+                --name 'app-baseline'
