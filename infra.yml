@@ -21,7 +21,7 @@ steps:
         --location $(location)
       az deployment group create \
         --resource-group $(resource_group_name) \
-        --template-file infra/main.bicep \
+        --template-file infra/baseline/main.bicep \
         --parameters servicePlan=$(app_service_plan_name) appName=$(app_name) apiName=$(api_name) insightName=$(app_insights_name) analyticsName=$(log_analytics_name) serverName=$(sql_server_name) sqlAdministratorLogin=$(sql_login) sqlAdministratorLoginPassword=$(sql_password) databaseName=$(sql_db_name) \
         --mode Incremental \
         --name 'app-baseline'
