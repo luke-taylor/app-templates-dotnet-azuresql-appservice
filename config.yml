@@ -4,7 +4,7 @@ variables:
   value: sp-luketaylor-dev
 
 ## Infrastructure Settings 
-- group: secret_variables #Variable Group in Azure DevOps containig SQL Password 
+- group: secret_variables #Variable Group in Azure DevOps containing SQL Password 
 - name: unique_prefix
   value: con-uni-22818 #Make this value unique 
 - name: resource_group_name
@@ -32,7 +32,7 @@ variables:
 - name: sql_login
   value: sqluser
 - name: sql_password
-  value: $(AZ_SQL_SERVER_PASSWORD)  
+  value: $(AZ_SQL_SERVER_PASSWORD) # Value located in Azure DevOps in the secret_variables Variable Group 
 
 ## App Settings 
 - name: ConnectionStrings.ContosoUniversityAPIContext
